@@ -1,0 +1,55 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "args": [
+                "--stream",
+                "Hello there"
+            ],
+            "cwd": "${workspaceFolder:GPTBot}",
+            "name": "Debug GPTBot",
+            "program": "${workspaceFolder:GPTBot}/.build/debug/GPTBot",
+            "preLaunchTask": "swift: Build Debug GPTBot"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "args": [],
+            "cwd": "${workspaceFolder:GPTBot}",
+            "name": "Release GPTBot",
+            "program": "${workspaceFolder:GPTBot}/.build/release/GPTBot",
+            "preLaunchTask": "swift: Build Release GPTBot"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "args": [],
+            "cwd": "${workspaceFolder:GPTBot}",
+            "name": "Debug gptbot",
+            "program": "${workspaceFolder:GPTBot}/.build/debug/gptbot",
+            "preLaunchTask": "swift: Build Debug gptbot"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "args": [],
+            "cwd": "${workspaceFolder:GPTBot}",
+            "name": "Release gptbot",
+            "program": "${workspaceFolder:GPTBot}/.build/release/gptbot",
+            "preLaunchTask": "swift: Build Release gptbot"
+        }
+    ]
+}
