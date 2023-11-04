@@ -47,7 +47,7 @@ GPTBot is released under the [MIT License](LICENSE.md).
 
 ## Acknowledgements
 
-GPTBot uses the [MacPaw's OpenAI Swift](https://github.com/MacPaw/OpenAI.git) library for communicating with OpenAI's API, and [alfianlosari's GPTEncoder](https://github.com/alfianlosari/GPTEncoder.git) for calculating token usage.
+GPTBot uses [MacPaw's OpenAI Swift](https://github.com/MacPaw/OpenAI.git) for communicating with OpenAI's API, and [alfianlosari's GPTEncoder](https://github.com/alfianlosari/GPTEncoder.git) for calculating token usage.
 
 ## Contributing
 
