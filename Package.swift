@@ -4,6 +4,9 @@ import PackageDescription
 let package = Package(
   name: "GPTBot",
   platforms: [.macOS(.v10_15)],
+  products: [
+    .executable(name: "gptbot", targets: ["gptbot"])
+  ],
   dependencies: [
     .package(url: "https://github.com/alfianlosari/GPTEncoder.git", from: "1.0.3"),
     .package(url: "https://github.com/MacPaw/OpenAI.git", from: "0.2.4"),
@@ -15,9 +18,9 @@ let package = Package(
       dependencies: [
         "GPTEncoder",
         "OpenAI",
-        // Specify the product name and the package it comes from.
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
-      ]
+      ],
+      path: "Sources"
     )
   ]
 )

@@ -201,7 +201,8 @@ struct GPTBotCommand: AsyncParsableCommand {
       }
 
     } catch {
-      throw error
+      print(error)
+      throw CleanExit.message("\(error)")
     }
   }
 }
