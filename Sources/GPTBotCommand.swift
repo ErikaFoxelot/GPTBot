@@ -56,7 +56,7 @@ struct GPTBotCommand: AsyncParsableCommand {
     @Option(
         name: [.short, .long],
         help:
-            "Path to output the response to. This file will be overwritten if it already exists. If specified, the response will not be printed to the console."
+            "Path to output the response to. Appends to the file if it already exists - use the --overwrite flag to overwrite the file. If specified, the response will not be printed to the console."
     )
     var outputFile: String?
 
