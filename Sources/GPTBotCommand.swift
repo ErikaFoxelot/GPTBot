@@ -51,14 +51,14 @@ struct GPTBotCommand: AsyncParsableCommand {
         help:
             "Path to a file to use as the system prompt. If not specified, a default system prompt will be used."
     )
-    var systemPromptFile: String?
+    var systemPromptFile: String = ""
 
     @Option(
         name: [.short, .long],
         help:
             "Path to output the response to. Appends to the file if it already exists - use the --overwrite flag to overwrite the file. If specified, the response will not be printed to the console."
     )
-    var outputFile: String?
+    var outputFile: String = ""
 
     @Option(
         name: [.long], help: "Temperature to use for the model. Value between 0 and 1."
@@ -80,7 +80,7 @@ struct GPTBotCommand: AsyncParsableCommand {
 
     @Argument(
         help: "The prompt to use for the response. Can be left empty if input files are used.")
-    var prompt: String?
+    var prompt: String = ""
 
     func isValidPath(_ path: String) -> Bool {
         return FileManager.default.fileExists(atPath: path)
@@ -97,7 +97,7 @@ struct GPTBotCommand: AsyncParsableCommand {
         }
 
         // Ensure either input files or a prompt is specified
-        guard !(inputFiles.isEmpty && prompt == nil) else {
+        guard !(inputFiles.isEmpty && prompt.isEmpty) else {
             throw ValidationError(
                 "Either standard input (stdin) or an input file and/or a prompt must be specified")
         }
@@ -114,7 +114,7 @@ struct GPTBotCommand: AsyncParsableCommand {
         }
 
         // Ensure the system prompt file exists
-        if let systemPromptFile: String {
+        if !systemPromptFile.isEmpty {
             guard isValidPath(systemPromptFile) else {
                 throw ValidationError("Prompt file \(systemPromptFile) does not exist")
             }
@@ -166,13 +166,13 @@ struct GPTBotCommand: AsyncParsableCommand {
             }
         }
 
-        if let prompt: String {
+        if !prompt.isEmpty {
             userPrompts.append(prompt)
         }
 
         // Resolve system prompt file:
         var systemPrompt: String = Defaults.systemPrompt
-        if let systemPromptFile: String {
+        if !systemPromptFile.isEmpty {
             do {
                 systemPrompt = try String(contentsOfFile: systemPromptFile)
             } catch {

@@ -12,11 +12,31 @@ struct OneShotChat {
 
     func evaluate() async throws -> PerfResults {
         let client = buildAPIClient()
-        let query = buildQuery()
+        let messages = buildMessages()
+        let tokensSent = calculateTokensSent(messages)
+        let query = buildQuery(messages, tokensSent)
 
         return config.inStreamingMode
-            ? try await evaluateStreaming(client, query)
+            ? try await evaluateStreaming(client, query, tokensSent)
             : try await evaluateNonStreaming(client, query)
+    }
+
+    func evaluateStreaming(_ client: OpenAI, _ query: ChatQuery, _ tokensSent: Int) async throws -> PerfResults {
+        var perfResults: PerfResults = PerfResults()
+        perfResults.duration = try await Measure {
+            var isFirstResponse = true
+            for try await partialResult in client.chatsStream(query: query) {
+                let content = partialResult.choices[0].delta.content ?? ""
+                perfResults.tokensReceived += config.includeStatistics ? encoding.encode(text: content).count : 0
+                try outputResponse(
+                    content, first: isFirstResponse,
+                    complete: partialResult.choices[0].finishReason != nil)
+                isFirstResponse = isFirstResponse && content.isEmpty
+            }
+            perfResults.tokensSent = tokensSent
+        }
+        perfResults.completedSuccessfully = true
+        return perfResults
     }
 
     func evaluateNonStreaming(_ client: OpenAI, _ query: ChatQuery) async throws -> PerfResults {
@@ -32,24 +52,6 @@ struct OneShotChat {
         return perfResults
     }
 
-    func evaluateStreaming(_ client: OpenAI, _ query: ChatQuery) async throws -> PerfResults {
-        var perfResults: PerfResults = PerfResults()
-        perfResults.duration = try await Measure {
-            var isFirstResponse = true
-            for try await partialResult in client.chatsStream(query: query) {
-                let content = partialResult.choices[0].delta.content ?? ""
-                perfResults.tokensReceived += encoding.encode(text: content).count
-                try outputResponse(
-                    content, first: isFirstResponse,
-                    complete: partialResult.choices[0].finishReason != nil)
-                isFirstResponse = isFirstResponse && content.isEmpty
-            }
-            perfResults.tokensSent = config.includeStatistics ? calculateTokensSent() : 0
-        }
-        perfResults.completedSuccessfully = true
-        return perfResults
-    }
-
     func buildAPIClient() -> OpenAI {
         return OpenAI(
             configuration: OpenAI.Configuration(
@@ -58,13 +60,13 @@ struct OneShotChat {
             ))
     }
 
-    func buildQuery() -> ChatQuery {
+    func buildQuery(_ messages: [Chat], _ tokensSent: Int) -> ChatQuery {
         return ChatQuery(
             model: config.model,
-            messages: buildMessages(),
+            messages: messages,
             //functions: buildFunctions(),
             temperature: config.temperature,
-            maxTokens: config.maxTokens - calculateTokensSent()
+            maxTokens: config.maxTokens - tokensSent
         )
     }
 
@@ -75,9 +77,19 @@ struct OneShotChat {
             }
     }
 
-    func calculateTokensSent() -> Int {
-        return encoding.encode(text: config.systemPrompt).count
-            + config.userPrompts.reduce(0) { $0 + encoding.encode(text: $1).count }
+    func calculateTokensSent(_ messages: [Chat]) -> Int {
+        var numTokens = 0
+        for message in messages {
+            numTokens += 4
+            if let content = message.content {
+                numTokens += encoding.encode(text: content).count
+            }
+            if let name = message.name, !name.isEmpty {
+                numTokens -= 1
+            }
+        }
+        numTokens += 2
+        return numTokens
     }
 
     func outputResponse(_ response: String, first: Bool = false, complete: Bool) throws {
