@@ -61,7 +61,7 @@ struct GPTBotCommand: AsyncParsableCommand {
     var outputFile: String = ""
 
     @Option(
-        name: [.long], help: "Temperature to use for the model. Value between 0 and 1."
+        name: [.long], help: "Temperature to use for the model. Value between 0 and 2."
     )
     var temperature: Double = Defaults.temperature
 
@@ -126,8 +126,8 @@ struct GPTBotCommand: AsyncParsableCommand {
         }
 
         // Ensure temperature is within range
-        guard temperature >= 0 && temperature <= 1 else {
-            throw ValidationError("Temperature (\(temperature)) must be between 0 and 1")
+        guard temperature >= 0 && temperature <= 2 else {
+            throw ValidationError("Temperature (\(temperature)) must be between 0 and 2")
         }
     }
 
